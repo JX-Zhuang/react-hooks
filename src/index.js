@@ -1,17 +1,30 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+// import React,{useState} from 'react';
+// import ReactDOM from 'react-dom';
+import { IndeterminateComponent } from './ReactWorkTags';
+import { render } from './ReactFiberWorkLoop';
+import { useReducer, useState } from './ReactFiberHooks';
+const reducer = (state, action) => {
+  if (action.type === 'add') {
+    return state + 1;
+  }
+  return state;
+};
+const Counter = () => {
+  const [number, setNumber] = useState(0);
+  console.log('Counter render',number);
+  return <div onClick={() =>{
+    setNumber(2);
+    setNumber(3);
+  }}>
+    {number}
+  </div>
+};
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+let CounterFiber = {
+  tag: IndeterminateComponent, //Fiber的类型
+  type: Counter, //此组件的具体类型是哪个组件
+  alternate: null  //上一个渲染的fiber
+}
+window.CounterFiber = CounterFiber;
+// ReactDOM.render(<Counter/>,document.getElementById('root'));
+render(CounterFiber);
