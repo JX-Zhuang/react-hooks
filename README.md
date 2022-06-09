@@ -1,70 +1,50 @@
-# Getting Started with Create React App
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+# React
+## 虚拟dom
+* 描述真实dom的js对象
+## Fiber
+* 为了可以让渲染中断，把整个渲染拆分成多个工作单元，每个单元就是一个Fiber
+* 每个虚拟dom表示成一个Fiber对象
+* render阶段会把虚拟dom以深度优先的方式构建Fiber树
+* 深度优先遍历：beginWork构建，该节点完成时执行completeUnitOfWork
+## EffectList
+* 副作用链表，表示对dom的增、删、改
+* 在complete阶段收集副作用链表
+* 在commit阶段处理副作用链表，即更新到dom中
+* 注意：dom-diff时，如果是删除Fiber，会把改变链表，把删除操作放在链表最前面 
+## dom-diff
+* dom-diff是老Fiber节点和新虚拟dom的对比
+* 如果没有老Fiber，新建Fiber
+### 原则
+* 只对同级元素对比
+* 不同类型对应不同元素
+* 可以用key识别同一个节点
+### 新节点是单个节点
+* 对比key，如果不同，继续查找其他Fiber
+* 对比key，如果相同
+    * 对比type，如果type不同，删除当前Fiber以及所有兄弟Fiber，新建Fiber并返回
+    * 对比type，如果type相同，删除剩余Fiber，复用老Fiber并返回
+### 新节点是数组
+* 第一次遍历
+    * 如果key不同，直接结束本轮循环
+    * 如果新老都遍历完，结束本轮循环
+    * 如果key相同，type不同，标记老Fiber为删除，继续遍历
+    * 如果key相同，type相同，复用老Fiber，继续遍历
+* 第二次遍历
+    * 如果新的遍历完，老的没有遍历完，把老的标记为删除，diff结束
+    * 如果老的遍历完，新的没有遍历完，把新的标记为新增，diff结束
+    * 新的和老的都遍历完，diff结束
+    * 新的和老的都没有遍历完，进行移动的逻辑
+* 第三次遍历
+    * 处理节点移动的逻辑
+    * 把老Fiber放在map里
+    * 遍历新节点
+        * 如果map里有，复用老Fiber。如果老Fiber的索引，比该Fiber在新节点的位置索引大，标记为移动。在map里删除改Fiber；
+        * 如果map里没有，标记为新增
+    * 循环完把map里剩余的Fiber标记为删除
+## 事件模型
+## 时间分片
+* 浏览器每秒刷新60帧，每16.67ms刷新一次。
+* JS的执行，会堵塞浏览器渲染。如果JS执行时间很长，浏览器渲染会卡住
+* `requestIdleCallback`浏览器兼容不好
+* 基于以上原因，React使用[MessageChannel](https://developer.mozilla.org/zh-CN/docs/Web/API/MessageChannel)实现时间分片。
+* `MessageChannel`是一个宏任务
