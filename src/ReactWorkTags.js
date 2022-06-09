@@ -1,5 +1,4 @@
-export const FunctionComponent = 0;
-export const ClassComponent = 1;
-export const IndeterminateComponent = 2;
-export const HostRoot = 3;//根节点
-export const HostComponent = 5;//原生dom节点
+//fiber的根节点，它其实对应的DOM节点就是containerInfo div#root
+export const HostRoot = 3;
+//原生组件的fiber span div p 
+export const HostComponent = 6;

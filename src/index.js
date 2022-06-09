@@ -1,30 +1,37 @@
-// import React,{useState} from 'react';
-// import ReactDOM from 'react-dom';
-import { IndeterminateComponent } from './ReactWorkTags';
-import { render } from './ReactFiberWorkLoop';
-import { useReducer, useState } from './ReactFiberHooks';
-const reducer = (state, action) => {
-  if (action.type === 'add') {
-    return state + 1;
-  }
-  return state;
-};
-const Counter = () => {
-  const [number, setNumber] = useState(0);
-  console.log('Counter render',number);
-  return <div onClick={() =>{
-    setNumber(2);
-    setNumber(3);
-  }}>
-    {number}
-  </div>
-};
-
-let CounterFiber = {
-  tag: IndeterminateComponent, //Fiber的类型
-  type: Counter, //此组件的具体类型是哪个组件
-  alternate: null  //上一个渲染的fiber
+import { scheduleCallback, shouldYield } from "./scheduler";
+let result = 0;
+let i = 0;
+/**
+ * 总任务
+ * @returns 
+ */
+function calculate() {
+    for (; i < 100000 && (!shouldYield()); i++) {//7个0
+        result += 1;
+    }
+    if (result < 100000) {
+        return calculate;
+    } else {
+        console.log('result', result);
+        return null;
+    }
 }
-window.CounterFiber = CounterFiber;
-// ReactDOM.render(<Counter/>,document.getElementById('root'));
-render(CounterFiber);
+let result2 = 0;
+let i2 = 0;
+/**
+ * 总任务
+ * @returns 
+ */
+function calculate2() {
+    for (; i2 < 100000 && (!shouldYield()); i2++) {
+        result2 += 1;
+    }
+    if (result2 < 100000) {
+        return calculate;
+    } else {
+        console.log('result2', result2);
+        return null;
+    }
+}
+scheduleCallback(calculate);
+scheduleCallback(calculate2);
