@@ -1,11 +1,14 @@
 
-import { HostRoot, HostComponent } from './ReactWorkTags';
+import { HostRoot, HostComponent, FunctionComponent, IndeterminateComponent } from './ReactWorkTags';
 import { reconcileChildFibers, mountChildFibers } from './ReactChildFiber';
 import { shouldSetTextContent } from './ReactDOMHostConfig';
+import { renderWithHooks } from './ReactFiberHooks';
+
 /**
  * 创建当前fiber的子fiber
  */
 export function beginWork(current, workInProgress) {
+    debugger
     switch (workInProgress.tag) {
         case HostRoot:
             return updateHostRoot(current, workInProgress);
@@ -14,6 +17,57 @@ export function beginWork(current, workInProgress) {
         default:
             break;
     }
+    if (current) {
+        // 有current说明是更新
+        switch (workInProgress.tag) {
+            case FunctionComponent:
+                return updateFunctionComponent(
+                    current,
+                    workInProgress,
+                    workInProgress.type //Counter组件
+                );
+            default:
+                break;
+        }
+    } else {
+        switch (workInProgress.tag) {
+            case IndeterminateComponent:
+                return mountIndeterminateComponent(
+                    current,
+                    workInProgress,
+                    workInProgress.type //Counter组件
+                );
+            default:
+                break;
+        }
+    }
+}
+function updateFunctionComponent(current, workInProgress, Component) {
+    // children就是Counter组件函数的返回值
+    let newChildren = renderWithHooks(
+        current,
+        workInProgress,
+        Component
+    );
+    window.counter = newChildren;
+    console.log('newChildren', newChildren);
+    // 构建虚拟DOM，构建Fiber子树
+    reconcileChildren(current, workInProgress, newChildren);
+    return workInProgress.child;
+}
+function mountIndeterminateComponent(current, workInProgress, Component) {
+    // children就是Counter组件函数的返回值
+    let children = renderWithHooks(
+        current,
+        workInProgress,
+        Component
+    );
+    window.counter = children;
+    console.log('children', children);
+    workInProgress.tag = FunctionComponent;
+    // 构建虚拟DOM，构建Fiber子树
+    reconcileChildren(current, workInProgress, children);
+    return workInProgress.child;
 }
 /**
  * 更新或者说挂载根节点

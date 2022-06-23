@@ -42,9 +42,29 @@
         * 如果map里没有，标记为新增
     * 循环完把map里剩余的Fiber标记为删除
 ## 事件模型
+* 事件委托到根组件
+* 冒泡、捕获
+## Hooks
+* fiber.memoizedState指向一个单向链表，里面存储hook对象
+* hook.queue.pending指向一个循环链表，里面存储update对象
+    * queue.pending，始终指向最新的update
+    * 新来的update，添加到循环链表的队尾
+* 连续调用两次useState，只更新一次
+    * 调用时，都会放在memoizedState里，但是会把之后的update.eager是false
+    * 在渲染时，获取state时，返回最后的state
+* 连续调用两次useState，只渲染一次
+    * 如果有正在进行中的task，会复用，不会继续执行
+* 如果在setTimeout里连续调用两次useState
+    * React17，会渲染多次
+    * React18，只渲染一次，批量更新
 ## 时间分片
 * 浏览器每秒刷新60帧，每16.67ms刷新一次。
 * JS的执行，会堵塞浏览器渲染。如果JS执行时间很长，浏览器渲染会卡住
 * `requestIdleCallback`浏览器兼容不好
 * 基于以上原因，React使用[MessageChannel](https://developer.mozilla.org/zh-CN/docs/Web/API/MessageChannel)实现时间分片。
 * `MessageChannel`是一个宏任务
+* 多任务调度，使用队列存储
+* 任务优先级
+    * 不同的任务优先级不一样，过期时间不一样
+    * 使用小顶堆存储任务
+* 延迟任务

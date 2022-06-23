@@ -1,4 +1,4 @@
-import { HostComponent, HostRoot } from './ReactWorkTags';
+import { FunctionComponent, HostComponent, HostRoot ,IndeterminateComponent} from './ReactWorkTags';
 import { NoFlags } from './ReactFiberFlags';
 export function createHostRootFiber() {
     return createFiber(HostRoot);
@@ -48,8 +48,11 @@ export function createWorkInProgress(current, pendingProps) {
 export function createFiberFromElement(element) {
     const { key, type, props } = element;
     let tag;
+    debugger
     if (typeof type === 'string') {// span div p
         tag = HostComponent;//标签等于原生组件
+    }else if(typeof type === 'function'){
+        tag = IndeterminateComponent;
     }
     const fiber = createFiber(tag, props, key);
     fiber.type = type;
