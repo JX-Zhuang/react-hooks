@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import Counter from './Counter';
 import { createRoot } from 'react-dom/client';
+import './indexSchedule';
+import Temp from './temp';
 const CounterOuter = () => {
     const [number, setNumber] = useState(0);
     console.log('App render', number);
@@ -55,4 +57,4 @@ const App = () => {
 // const container = document.getElementById('root');
 // const root = createRoot(container);
 // root.render(<App />);
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<Temp />, document.getElementById('root'));

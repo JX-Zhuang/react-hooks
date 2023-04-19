@@ -23,10 +23,10 @@ let i2 = 0;
  * @returns 
  */
 function calculate2() {
-    for (; i2 < 100000 && (!shouldYield()); i2++) {
+    for (; i2 < 1000000 && (!shouldYield()); i2++) {
         result2 += 1;
     }
-    if (result2 < 100000) {
+    if (result2 < 1000000) {
         return calculate;
     } else {
         console.log('result2', result2);
